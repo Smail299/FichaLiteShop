@@ -1,0 +1,18 @@
+name: FichaLiteShop
+version: 1.0
+main: ua.fichadev.fichaliteshop.FichaLiteShop
+api-version: 1.16
+authors:
+  - FichaDev
+  - Smail
+depend:
+  - Vault
+  - PlayerPoints
+commands:
+  shop:
+  liteshop:
+    permission: liteshop.admin
+
+permissions:
+  liteshop.admin:
+    default: op

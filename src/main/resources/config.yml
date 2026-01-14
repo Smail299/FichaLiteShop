@@ -1,0 +1,68 @@
+early_wipe_mode: false #включить/выключить режим раннего вайпа
+refresh_interval_minutes: 120 #как часто будет обновляться ассортимент предметов в минутах (покупных)
+early_wipe_interval_minutes: 60 #интервал обновления в режиме раннего вайпа
+items_per_player: 7 #количество товаров для каждого игрока (покупных)
+
+
+discount_min_percent: 1 #минимальная скидка в процентах
+discount_max_percent: 45 #максимальная скидка в процентах
+
+
+auction_duration_hours: 12 #продолжительность одного раунда аукциона в часах
+auction_time_extension_seconds: 25 #продление времени аукциона в секундах
+auction_min_time_for_extension: 25 #минимальное время до конца аукциона для срабатывания продления (в секундах)
+
+
+currencies:
+  sapphires: "сапфиров ☀"
+  coins: "монеток ¤"
+
+
+notify_new_items: true
+notify_auction_end: true
+notify_auction_start: true
+notify_bid_outbid: true
+
+messages:
+  shop_items_refreshed: "§x§f§b§a§7§0§0▶ &fАссортимент магазина был обновлён!"
+  shop_gui_title: "§x§f§b§a§7§0§0Премиум-магазин"
+  auction_started: "§x§f§b§a§7§0§0▶ &fНачался новый раунд аукциона!"
+  auction_won: "§x§f§b§a§7§0§0▶ &fВы выиграли аукцион! Предмет отправлен на склад."
+  auction_winner: "§x§f§b§a§7§0§0▶ &fПобедитель аукциона: "
+  auction_no_bids: "§x§f§b§a§7§0§0▶ &fСтавок не было. Аукцион завершён."
+  auction_gui_title: "§x§f§b§a§7§0§0Аукцион"
+  bid_placed: "§x§f§b§a§7§0§0▶ &fВаша ставка: %amount% %getCoinsCurrencyName%"
+  bid_outbid: "§x§f§b§a§7§0§0▶ &fВашу ставку перебили. Возвращено: §x§f§b§a§7§0§0%amount% &f%getCoinsCurrencyName%"
+  bid_must_be_higher: "§x§f§b§a§7§0§0▶ &fСтавка должна быть выше текущей цены."
+  not_enough_sapphires: "&x&F&8&0&8&0&8▶ &fНа Вашем счету &x&F&8&0&8&0&8недостаточно средвст&f, Вам необходимо иметь &#FB0FD4%required% сапфиров ☀&f."
+  not_enough_coins: "&x&F&8&0&8&0&8▶ &fНа Вашем счету &x&F&8&0&8&0&8недостаточно средвст&f, Вам необходимо иметь &#fca000%required% монеток ¤&f."
+  purchase_success: "§x§f§b§a§7§0§0▶ &fПокупка успешна! Списано: &#FB0FD4%amount% %getSapphiresCurrencyName%"
+  purchase_sent_warehouse: "§x§f§b§a§7§0§0▶ &fПредмет отправлен на склад. Используйте §x§f§b§a§7§0§0/shop chest"
+  auction_not_available: "§x§f§b§a§7§0§0▶ &fАукцион больше недоступен."
+  open_warehouse: "§x§f§b§a§7§0§0▶ &fОткройте склад командой §x§f§b§a§7§0§0/shop chest"
+  warehouse_gui_title: "§x§f§b§a§7§0§0Ваш склад"
+  warehouse_empty: "§x§f§b§a§7§0§0▶ &fВаш склад пуст."
+  item_received: "§x§f§b§a§7§0§0▶ &fПредмет успешно получен!"
+  item_dropped: "§x§f§b§a§7§0§0▶ &fИнвентарь полон. Предмет выпал рядом с вами."
+  no_permission: "§x§f§b§a§7§0§0▶ &fУ вас нет прав на выполнение этой команды."
+  players_only: "§x§f§b§a§7§0§0▶ &fКоманда доступна только игрокам."
+  hold_item: "§x§f§b§a§7§0§0▶ &fВозьмите предмет в руку."
+  add_usage: "§x§f§b§a§7§0§0▶ &fИспользование: §x§f§b§a§7§0§0/liteshop add <shop|auction> <цена> [валюта] [шаг]"
+  invalid_type: "§x§f§b§a§7§0§0▶ &fТип должен быть: shop или auction."
+  auction_usage: "§x§f§b§a§7§0§0▶ &fИспользование: /liteshop add auction <цена> <sapphire|money> <шаг>"
+  invalid_currency: "§x§f§b§a§7§0§0▶ &fУказана неверная валюта."
+  invalid_price: "§x§f§b§a§7§0§0▶ &fУкажите корректную цену."
+  item_added: "§x§f§b§a§7§0§0▶ &fПредмет §x§f§b§a§7§0§0%itemName% &fуспешно добавлен."
+  remove_usage: "§x§f§b§a§7§0§0▶ &fИспользование: /liteshop remove <название>"
+  item_removed: "§x§f§b§a§7§0§0▶ &fПредмет §x§f§b§a§7§0§0%itemName% &fудалён."
+  item_not_found: "§x§f§b§a§7§0§0▶ &fПредмет не найден."
+  items_refreshed_all: "§x§f§b§a§7§0§0▶ &fМагазин обновлён для всех игроков."
+  loading: "§x§f§b§a§7§0§0▶ &fЗагрузка..."
+  success: "§x§f§b§a§7§0§0▶ &fУспешно!"
+  error: "§x§f§b§a§7§0§0▶ &fПроизошла ошибка."
+  invalid_input: "§x§f§b§a§7§0§0▶ &fНеверный ввод."
+  please_wait: "§x§f§b§a§7§0§0▶ &fПожалуйста, подождите..."
+
+
+save_auction_history: true #сохранять историю аукционов в файлы
+reuse_auction_items: true #автоматически переиспользовать вещи из аукциона
