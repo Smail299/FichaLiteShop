@@ -16,7 +16,7 @@ public class PlayerShopData {
         this.playerId = playerId;
         this.currentItems = new ArrayList();
         this.discounts = new HashMap();
-        this.lastRefresh = System.currentTimeMillis();
+        this.lastRefresh = 0;
     }
 
     public UUID getPlayerId() {

@@ -16,14 +16,16 @@ import org.bukkit.inventory.ItemStack;
 import ua.fichadev.fichaliteshop.FichaLiteShop;
 import ua.fichadev.fichaliteshop.data.PlayerShopData;
 import ua.fichadev.fichaliteshop.data.ShopItem;
+import ua.fichadev.fichaliteshop.database.DatabaseManager;
+import ua.fichadev.fichaliteshop.database.impl.MySQLDatabase;
+import ua.fichadev.fichaliteshop.database.impl.SQLiteDatabase;
 import ua.fichadev.fichaliteshop.utils.ColorUtils;
 
 public class DataManager {
     private final FichaLiteShop plugin;
     private final Map<UUID, PlayerShopData> playerDataMap;
     private final List<ShopItem> availableItems;
-    private final Map<UUID, List<ItemStack>> warehouseItems;
-    private final Map<UUID, Map<String, Integer>> playerPurchaseStats;
+    private final DatabaseManager databaseManager;
     private File dataFile;
     private FileConfiguration dataConfig;
 
@@ -31,8 +33,14 @@ public class DataManager {
         this.plugin = plugin;
         this.playerDataMap = new HashMap<>();
         this.availableItems = new ArrayList<>();
-        this.warehouseItems = new HashMap<>();
-        this.playerPurchaseStats = new HashMap<>();
+
+        String type = plugin.getConfig().getString("database.type", "sqlite").toLowerCase();
+        if (type.equals("mysql")) {
+            this.databaseManager = new MySQLDatabase(plugin);
+        } else {
+            this.databaseManager = new SQLiteDatabase(plugin);
+        }
+
         loadData();
     }
 
@@ -48,10 +56,7 @@ public class DataManager {
         }
 
         dataConfig = YamlConfiguration.loadConfiguration(dataFile);
-
         loadItems();
-        loadWarehouse();
-        loadPurchaseStats();
     }
 
     private void loadItems() {
@@ -73,58 +78,23 @@ public class DataManager {
         }
     }
 
-    private void loadWarehouse() {
-        ConfigurationSection warehouseSection = dataConfig.getConfigurationSection("warehouse");
-        if (warehouseSection == null) return;
-
-        for (String key : warehouseSection.getKeys(false)) {
-            UUID playerId = UUID.fromString(key);
-            List<ItemStack> items = new ArrayList<>();
-
-            if (dataConfig.isList("warehouse." + key)) {
-                List<?> itemsList = dataConfig.getList("warehouse." + key);
-                for (Object obj : itemsList) {
-                    if (obj instanceof ItemStack) {
-                        items.add((ItemStack) obj);
-                    }
-                }
-            }
-
-            if (!items.isEmpty()) {
-                warehouseItems.put(playerId, items);
-            }
-        }
-    }
-
-    private void loadPurchaseStats() {
-        ConfigurationSection statsSection = dataConfig.getConfigurationSection("purchase_stats");
-        if (statsSection == null) return;
-
-        for (String key : statsSection.getKeys(false)) {
-            UUID playerId = UUID.fromString(key);
-            Map<String, Integer> stats = new HashMap<>();
-
-            ConfigurationSection playerStats = dataConfig.getConfigurationSection("purchase_stats." + key);
-            if (playerStats != null) {
-                for (String itemId : playerStats.getKeys(false)) {
-                    int amount = dataConfig.getInt("purchase_stats." + key + "." + itemId);
-                    stats.put(itemId, amount);
-                }
-            }
-
-            playerPurchaseStats.put(playerId, stats);
-        }
-    }
-
     public void saveAllData() {
         saveItems();
-        saveWarehouse();
-        savePurchaseStats();
 
         try {
             dataConfig.save(dataFile);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        for (Map.Entry<UUID, PlayerShopData> entry : playerDataMap.entrySet()) {
+            PlayerShopData data = entry.getValue();
+            databaseManager.savePlayerShop(
+                    entry.getKey(),
+                    data.getCurrentItems(),
+                    data.getDiscounts(),
+                    data.getLastRefresh()
+            );
         }
     }
 
@@ -142,26 +112,24 @@ public class DataManager {
         }
     }
 
-    private void saveWarehouse() {
-        dataConfig.set("warehouse", null);
-
-        for (Map.Entry<UUID, List<ItemStack>> entry : warehouseItems.entrySet()) {
-            dataConfig.set("warehouse." + entry.getKey().toString(), entry.getValue());
-        }
-    }
-
-    private void savePurchaseStats() {
-        dataConfig.set("purchase_stats", null);
-
-        for (Map.Entry<UUID, Map<String, Integer>> entry : playerPurchaseStats.entrySet()) {
-            for (Map.Entry<String, Integer> stat : entry.getValue().entrySet()) {
-                dataConfig.set("purchase_stats." + entry.getKey().toString() + "." + stat.getKey(), stat.getValue());
-            }
-        }
-    }
-
     public PlayerShopData getPlayerData(UUID playerId) {
-        return playerDataMap.computeIfAbsent(playerId, PlayerShopData::new);
+        if (!playerDataMap.containsKey(playerId)) {
+            PlayerShopData data = new PlayerShopData(playerId);
+
+            List<String> currentItems = new ArrayList<>();
+            Map<String, Double> discounts = new HashMap<>();
+            long[] lastRefresh = {0};
+            databaseManager.loadPlayerShop(playerId, currentItems, discounts, lastRefresh);
+
+            if (!currentItems.isEmpty()) {
+                data.setCurrentItems(currentItems);
+                data.setDiscounts(discounts);
+            }
+            data.setLastRefresh(lastRefresh[0]);
+
+            playerDataMap.put(playerId, data);
+        }
+        return playerDataMap.get(playerId);
     }
 
     public List<ShopItem> getAvailableItems() {
@@ -220,36 +188,26 @@ public class DataManager {
     }
 
     public void addWarehouseItem(UUID playerId, ItemStack item) {
-        List<ItemStack> items = warehouseItems.getOrDefault(playerId, new ArrayList<>());
-        items.add(item);
-        warehouseItems.put(playerId, items);
-        saveAllData();
+        databaseManager.addWarehouseItem(playerId, item);
     }
 
     public List<ItemStack> getWarehouseItems(UUID playerId) {
-        return new ArrayList<>(warehouseItems.getOrDefault(playerId, new ArrayList<>()));
+        return databaseManager.getWarehouseItems(playerId);
     }
 
     public ItemStack removeWarehouseItem(UUID playerId, int index) {
-        List<ItemStack> items = warehouseItems.get(playerId);
-
-        if (items == null || index < 0 || index >= items.size()) {
-            return null;
-        }
-
-        ItemStack removed = items.remove(index);
-        saveAllData();
-        return removed;
+        return databaseManager.removeWarehouseItem(playerId, index);
     }
 
     public void addPurchaseStat(UUID playerId, String itemId, int amount) {
-        Map<String, Integer> stats = playerPurchaseStats.getOrDefault(playerId, new HashMap<>());
-        stats.put(itemId, stats.getOrDefault(itemId, 0) + amount);
-        playerPurchaseStats.put(playerId, stats);
-        saveAllData();
+        databaseManager.addPurchaseStat(playerId, itemId, amount);
     }
 
     public Map<String, Integer> getPlayerPurchaseStats(UUID playerId) {
-        return new HashMap<>(playerPurchaseStats.getOrDefault(playerId, new HashMap<>()));
+        return databaseManager.getPlayerPurchaseStats(playerId);
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 }

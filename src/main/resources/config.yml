@@ -3,6 +3,16 @@
 #        Studio: t.me/FichaDev
 #        Hentai: t.me/FichaHentai
 #
+database:
+  type: sqlite #sqlite или mysql
+  mysql:
+    host:
+    port: 3306
+    database: FichaLiteShop
+    username: Smail
+    password: 't.me/FichaDev'
+    pool-size: 10
+
 early_wipe_mode: false #включить/выключить режим раннего вайпа
 refresh_interval_minutes: 120 #как часто будет обновляться ассортимент предметов в минутах (покупных)
 early_wipe_interval_minutes: 60 #интервал обновления в режиме раннего вайпа
@@ -70,5 +80,4 @@ messages:
 
 
 save_auction_history: true #сохранять историю аукционов в файлы
-
 reuse_auction_items: true #автоматически переиспользовать вещи из аукциона

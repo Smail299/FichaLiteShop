@@ -47,6 +47,7 @@ public class FichaLiteShop extends JavaPlugin {
     public void onDisable() {
         if (dataManager != null) {
             dataManager.saveAllData();
+            dataManager.getDatabaseManager().close();
         }
     }
 

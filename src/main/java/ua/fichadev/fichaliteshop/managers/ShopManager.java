@@ -72,6 +72,10 @@ public class ShopManager {
         data.setDiscounts(discounts);
         data.setLastRefresh(System.currentTimeMillis());
 
+        plugin.getDataManager().getDatabaseManager().savePlayerShop(
+                playerId, selectedItems, discounts, data.getLastRefresh()
+        );
+
         notifyPlayerIfOnline(playerId);
     }
 
